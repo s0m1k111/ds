@@ -1,0 +1,80 @@
+{
+  "messages": {
+    "general": [
+      {
+        "id": 1770052021370,
+        "user": "igor",
+        "text": "asdasdad",
+        "time": "20:07",
+        "room": "general"
+      },
+      {
+        "id": 1770052028536,
+        "user": "igor",
+        "text": "adadadsa",
+        "time": "20:07",
+        "room": "general"
+      },
+      {
+        "id": 1770052048098,
+        "user": "igor",
+        "text": "adswsaf3w3eferfgegregrefveswfsa",
+        "time": "20:07",
+        "room": "general"
+      }
+    ],
+    "spam": [
+      {
+        "id": 1770051081624,
+        "user": "pavel",
+        "text": "kek",
+        "time": "19:51"
+      },
+      {
+        "id": 1770052055066,
+        "user": "igor",
+        "text": "sfeferfe",
+        "time": "20:07",
+        "room": "spam"
+      },
+      {
+        "id": 1770052287565,
+        "user": "pavel",
+        "text": "afdafdsa",
+        "time": "20:11",
+        "room": "spam"
+      },
+      {
+        "id": 1770052292145,
+        "user": "igor",
+        "text": "wsefwsf",
+        "time": "20:11",
+        "room": "spam"
+      }
+    ],
+    "igor_pavel": [
+      {
+        "id": 1770051122963,
+        "user": "igor",
+        "text": "darova",
+        "time": "19:52"
+      },
+      {
+        "id": 1770051131620,
+        "user": "pavel",
+        "text": "darova",
+        "time": "19:52"
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "igor",
+      "password": "$2b$10$YAm9E83d6FhiIDD9dT4m..6StFw0p2x4HBr.KDtZGBdSgaWsu3CKm"
+    },
+    {
+      "username": "pavel",
+      "password": "$2b$10$FOT0CFYKmRHucn2p/rQMD.VjE0TSaRmZvEsz7KRNq1zs5HZGsQaoK"
+    }
+  ]
+}
