@@ -26,9 +26,9 @@ function transitionTo(hide, show) {
   }, 800);
 }
 
-// 2. Отрисовка сообщения на экране
+// 2. Отрисовка сообщения на экране (ТОЛЬКО РИСОВАНИЕ)
 function renderMessage(msg) {
-  // Рисуем, только если комната совпадает с открытой
+  // Рисуем, только если комната сообщения совпадает с открытой сейчас
   if (msg.room !== currentRoom) return;
 
   const container = document.getElementById("messages-container");
@@ -51,14 +51,13 @@ function renderMessage(msg) {
   container.scrollTop = container.scrollHeight;
 }
 
-// 3. Обновление значка непрочитанных (справа от ника/канала)
+// 3. Обновление бейджа непрочитанных
 function updateUnreadUI(room) {
   const targetId = room.includes("_") ? room.split("_").find((u) => u !== currentUser?.username) : room;
   const item = document.querySelector(`[data-id="${targetId}"]`);
   if (!item) return;
 
   let badge = item.querySelector(".unread-badge");
-  // Показываем бейдж только если есть сообщения И мы не в этой комнате
   if (unreadCounts[room] > 0 && room !== currentRoom) {
     if (!badge) {
       badge = document.createElement("span");
@@ -75,11 +74,11 @@ function updateUnreadUI(room) {
 window.switchRoom = (target, isPrivate = false) => {
   const newRoom = isPrivate ? getPrivateRoomId(currentUser.username, target) : target;
 
-  // Выходим из старой и входим в новую
+  // Переключаем комнаты на сервере
   socket.emit("join room", { oldRoom: currentRoom, newRoom: newRoom });
 
   currentRoom = newRoom;
-  unreadCounts[currentRoom] = 0; // Обнуляем уведомления
+  unreadCounts[currentRoom] = 0; // Сбрасываем счетчик при входе
   updateUnreadUI(currentRoom);
 
   document.querySelector(".chat-header").innerText = isPrivate ? `👤 ${target}` : `# ${target}`;
@@ -93,13 +92,13 @@ window.switchRoom = (target, isPrivate = false) => {
   const container = document.getElementById("messages-container");
   container.innerHTML = "";
 
-  // Отрисовываем историю из кэша браузера
+  // Загружаем сообщения из кэша
   if (allMessages[currentRoom]) {
     allMessages[currentRoom].forEach((m) => renderMessage(m));
   }
 };
 
-// 5. Обработка событий сокета
+// 5. Логика Socket.io
 socket.on("auth success", (data) => {
   currentUser = data.user;
   allMessages = data.history || {};
@@ -123,19 +122,21 @@ socket.on("auth success", (data) => {
 });
 
 socket.on("render message", (msg) => {
-  // 1. Сохраняем в кэш (чтобы сообщения не пропадали при переключении чатов)
-  if (!allMessages[msg.room]) allMessages[msg.room] = [];
-  if (!allMessages[msg.room].some((m) => m.id === msg.id)) {
-    allMessages[msg.room].push(msg);
+  const msgRoom = msg.room;
+
+  // ШАГ 1: Всегда сохраняем в кэш, независимо от того, в какой мы комнате
+  if (!allMessages[msgRoom]) allMessages[msgRoom] = [];
+  if (!allMessages[msgRoom].some((m) => m.id === msg.id)) {
+    allMessages[msgRoom].push(msg);
   }
 
-  // 2. Если мы сейчас в этом чате — рисуем
-  if (msg.room === currentRoom) {
+  // ШАГ 2: Если мы в этой комнате — рисуем на экране
+  if (msgRoom === currentRoom) {
     renderMessage(msg);
   } else {
-    // 3. Если в другом — копим уведомления
-    unreadCounts[msg.room] = (unreadCounts[msg.room] || 0) + 1;
-    updateUnreadUI(msg.room);
+    // ШАГ 3: Если в другой — увеличиваем счетчик непрочитанных
+    unreadCounts[msgRoom] = (unreadCounts[msgRoom] || 0) + 1;
+    updateUnreadUI(msgRoom);
   }
 });
 
@@ -170,7 +171,7 @@ socket.on("user typing", (data) => {
   }
 });
 
-// 7. Настройки и кнопки
+// 7. Интерфейс и Кнопки
 window.setTheme = (t) => document.documentElement.setAttribute("data-theme", t);
 window.changeBackground = () => {
   const url = document.getElementById("bg-input").value;
