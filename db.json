@@ -49,6 +49,27 @@
         "text": "hello",
         "time": "20:57",
         "room": "general"
+      },
+      {
+        "id": 1770220170813,
+        "user": "pavel",
+        "text": "ewrfefre",
+        "time": "18:49",
+        "room": "general"
+      },
+      {
+        "id": 1770308931952,
+        "user": "igor",
+        "text": "sfdsgf",
+        "time": "19:28",
+        "room": "general"
+      },
+      {
+        "id": 1770308940021,
+        "user": "igor",
+        "text": "sfsfd",
+        "time": "19:29",
+        "room": "general"
       }
     ],
     "spam": [
@@ -127,6 +148,28 @@
         "text": "sdfsdfs",
         "time": "20:58",
         "room": "spam"
+      },
+      {
+        "id": 1770220166053,
+        "user": "pavel",
+        "text": "uebrguyei;gr",
+        "time": "18:49",
+        "room": "spam"
+      },
+      {
+        "id": 1770312721340,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg",
+        "text": "sgfd",
+        "time": "20:32",
+        "room": "spam"
+      },
+      {
+        "id": 1770312727049,
+        "user": "igor",
+        "text": "dfgdg",
+        "time": "20:32",
+        "room": "spam"
       }
     ],
     "igor_pavel": [
@@ -176,6 +219,66 @@
         "text": "sferfe443f",
         "time": "20:58",
         "room": "igor_pavel"
+      },
+      {
+        "id": 1770220125286,
+        "user": "igor",
+        "text": "usjgdfiyuegrfe",
+        "time": "18:48",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1770220135282,
+        "user": "igor",
+        "text": "sfd4eoiurf",
+        "time": "18:48",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1770308957771,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg",
+        "text": "werfrfe",
+        "time": "19:29",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1770308960167,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg",
+        "text": "www",
+        "time": "19:29",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1770312059805,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg",
+        "text": "ываыавы",
+        "time": "20:20",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1770312065636,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg",
+        "text": "ыавываы",
+        "time": "20:21",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1770312731684,
+        "user": "igor",
+        "text": "dgfhfdgh",
+        "time": "20:32",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1770312735966,
+        "user": "igor",
+        "text": "dhghfdh",
+        "time": "20:32",
+        "room": "igor_pavel"
       }
     ]
   },
@@ -186,7 +289,9 @@
     },
     {
       "username": "pavel",
-      "password": "$2b$10$FOT0CFYKmRHucn2p/rQMD.VjE0TSaRmZvEsz7KRNq1zs5HZGsQaoK"
+      "password": "$2b$10$FOT0CFYKmRHucn2p/rQMD.VjE0TSaRmZvEsz7KRNq1zs5HZGsQaoK",
+      "email": "spavel1207@gmail.com",
+      "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg"
     }
   ]
 }

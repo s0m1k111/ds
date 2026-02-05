@@ -1,73 +1,144 @@
 <!DOCTYPE html>
 <html lang="ru" data-theme="dark">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Japan Messenger 2026</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+      /* Минимальные стили для аватарок и модалки */
+      .msg-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 10px;
+        border: 1px solid var(--neon-blue);
+      }
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal-content {
+        background: #1a1a1a;
+        padding: 30px;
+        border-radius: 15px;
+        border: 1px solid var(--neon-blue);
+        width: 300px;
+      }
+      .modal-content input {
+        width: 100%;
+        margin-bottom: 15px;
+        padding: 10px;
+        background: #000;
+        border: 1px solid #333;
+        color: white;
+        border-radius: 5px;
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="profile-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2 style="color: var(--neon-blue); margin-top: 0">Профиль</h2>
+        <label style="font-size: 0.7rem; opacity: 0.7">Email:</label>
+        <input type="email" id="edit-email" placeholder="example@mail.com" />
+        <label style="font-size: 0.7rem; opacity: 0.7">URL Аватарки:</label>
+        <input type="text" id="edit-avatar" placeholder="https://..." />
+        <button id="save-profile-btn" style="width: 100%">Сохранить</button>
+        <button onclick="toggleProfileModal()" style="width: 100%; margin-top: 10px; background: transparent; border: 1px solid #444">
+          Отмена
+        </button>
+      </div>
+    </div>
+
     <div id="loader" class="screen">
-        <div class="loader-content">
-            <div class="neon-circle"><img src="https://cdn-icons-png.flaticon.com/128/410/410199.png" class="loader-icon"></div>
-            <div class="loading-text"><h1>こんにちは</h1><p>Система 2026 готова...</p></div>
+      <div class="loader-content">
+        <div class="neon-circle"><img src="https://cdn-icons-png.flaticon.com/128/410/410199.png" class="loader-icon" /></div>
+        <div class="loading-text">
+          <h1>こんにちは</h1>
+          <p>Система 2026 готова...</p>
         </div>
+      </div>
     </div>
 
-    <div id="auth-screen" class="screen hidden" style="opacity:0">
-        <div class="auth-box">
-            <h2 id="auth-title">Вход в систему</h2>
-            <div class="input-group">
-                <input type="text" id="username" placeholder="Никнейм" autocomplete="off">
-                <input type="password" id="password" placeholder="Пароль">
+    <div id="auth-screen" class="screen hidden" style="opacity: 0">
+      <div class="auth-box">
+        <h2 id="auth-title">Вход в систему</h2>
+        <div class="input-group">
+          <input type="text" id="username" placeholder="Никнейм" autocomplete="off" />
+          <input type="password" id="password" placeholder="Пароль" />
+        </div>
+        <button id="auth-btn">Войти</button>
+        <p id="auth-toggle">Нет аккаунта? <span>Регистрация</span></p>
+      </div>
+    </div>
+
+    <div id="chat-screen" class="screen hidden" style="opacity: 0">
+      <div class="main-layout">
+        <aside class="sidebar">
+          <div class="user-profile">
+            <img
+              id="my-avatar"
+              class="mini-avatar"
+              src="https://cdn-icons-png.flaticon.com/128/149/149071.png"
+              style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover"
+            />
+            <div class="user-info">
+              <span id="current-user-name">User</span>
+              <div style="display: flex; gap: 10px">
+                <button onclick="toggleProfileModal()" style="font-size: 0.6rem; padding: 2px 5px">⚙️ Профиль</button>
+                <button id="logout-btn" style="font-size: 0.6rem; padding: 2px 5px">Выход</button>
+              </div>
             </div>
-            <button id="auth-btn">Войти</button>
-            <p id="auth-toggle">Нет аккаунта? <span>Регистрация</span></p>
-        </div>
-    </div>
-
-    <div id="chat-screen" class="screen hidden" style="opacity:0">
-        <div class="main-layout">
-            <aside class="sidebar">
-                <div class="user-profile">
-                    <div class="mini-avatar"></div>
-                    <div class="user-info">
-                        <span id="current-user-name">User</span>
-                        <button id="logout-btn" style="font-size:0.6rem; padding:2px 5px; margin-top:5px; display:block">Выход</button>
-                    </div>
-                </div>
-                <div class="contacts-container" style="overflow-y:auto; flex-grow:1">
-                    <p class="section-title" style="padding:10px 20px; opacity:0.5; font-size:0.7rem">КАНАЛЫ</p>
-                    <div id="channels-list">
-                        <div class="contact-item active" data-id="general" onclick="switchRoom('general')"># основной-чат</div>
-                        <div class="contact-item" data-id="spam" onclick="switchRoom('spam')"># флудилка</div>
-                    </div>
-                    <p class="section-title" style="padding:10px 20px; opacity:0.5; font-size:0.7rem">ПОЛЬЗОВАТЕЛИ</p>
-                    <div id="users-list"></div>
-                </div>
-                <!-- ПАНЕЛЬ НАСТРОЕК -->
-                <div class="settings-area">
-                    <div class="theme-btns">
-                        <button onclick="setTheme('dark')">🌙</button>
-                        <button onclick="setTheme('light')">☀️</button>
-                    </div>
-                    <input type="text" id="bg-input" placeholder="URL картинки фона" style="width:80%; font-size:0.7rem">
-                    <button onclick="changeBackground()" style="font-size:0.7rem; padding:5px">ОК</button>
-                </div>
-            </aside>
-            <main class="chat-area">
-                <header class="chat-header" style="padding:15px 25px; border-bottom:1px solid var(--glass-border); font-weight:bold; color:var(--neon-blue)"># ГЛАВНЫЙ</header>
-                <div id="messages-container"></div>
-                <div id="typing-indicator"></div>
-                <div class="input-container" style="padding:20px; display:flex; gap:10px; background:rgba(0,0,0,0.1)">
-                    <input type="text" id="msg-input" placeholder="Написать..." style="flex-grow:1">
-                    <button id="send-btn">➤</button>
-                </div>
-            </main>
-        </div>
+          </div>
+          <div class="contacts-container" style="overflow-y: auto; flex-grow: 1">
+            <p class="section-title" style="padding: 10px 20px; opacity: 0.5; font-size: 0.7rem">КАНАЛЫ</p>
+            <div id="channels-list">
+              <div class="contact-item active" data-id="general" onclick="switchRoom('general')"># основной-чат</div>
+              <div class="contact-item" data-id="spam" onclick="switchRoom('spam')"># флудилка</div>
+            </div>
+            <p class="section-title" style="padding: 10px 20px; opacity: 0.5; font-size: 0.7rem">ПОЛЬЗОВАТЕЛИ</p>
+            <div id="users-list"></div>
+          </div>
+          <div class="settings-area">
+            <div class="theme-btns">
+              <button onclick="setTheme('dark')">🌙</button>
+              <button onclick="setTheme('light')">☀️</button>
+            </div>
+            <input type="text" id="bg-input" placeholder="URL картинки фона" style="width: 80%; font-size: 0.7rem" />
+            <button onclick="changeBackground()" style="font-size: 0.7rem; padding: 5px">ОК</button>
+          </div>
+        </aside>
+        <main class="chat-area">
+          <header
+            class="chat-header"
+            style="padding: 15px 25px; border-bottom: 1px solid var(--glass-border); font-weight: bold; color: var(--neon-blue)"
+          >
+            # ГЛАВНЫЙ
+          </header>
+          <div id="messages-container"></div>
+          <div id="typing-indicator"></div>
+          <div class="input-container" style="padding: 20px; display: flex; gap: 10px; background: rgba(0, 0, 0, 0.1)">
+            <input type="text" id="msg-input" placeholder="Написать..." style="flex-grow: 1" />
+            <button id="send-btn">➤</button>
+          </div>
+        </main>
+      </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js" type="module"></script>
-</body>
+  </body>
 </html>
