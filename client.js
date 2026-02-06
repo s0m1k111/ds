@@ -5,6 +5,10 @@ let allMessages = {};
 let unreadCounts = {};
 let currentOnlineList = []; // Храним список тех, кто в сети
 
+// --- ДОБАВЛЕНО: ЗВУКОВЫЕ УВЕДОМЛЕНИЯ ---
+const notificationSound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+notificationSound.volume = 0.5;
+
 const getPrivateRoomId = (u1, u2) => [u1, u2].sort().join("_");
 const isImageUrl = (url) => /\.(jpg|jpeg|png|webp|gif)$/.test(url) || url.startsWith("https://images.unsplash.com");
 
@@ -99,18 +103,28 @@ window.switchRoom = (target) => {
   }
 };
 
-// 4. Прием сообщений
+// 4. ПРИЕМ СООБЩЕНИЙ (ИСПРАВЛЕНО ДЛЯ ЗВУКА)
 socket.on("render message", (msg) => {
   if (!allMessages[msg.room]) allMessages[msg.room] = [];
   if (!allMessages[msg.room].some((m) => m.id === msg.id)) {
     allMessages[msg.room].push(msg);
   }
 
+  const isMine = currentUser && msg.user === currentUser.username;
+
   if (msg.room === currentRoom) {
     renderMessage(msg);
+    // Если вкладка скрыта и сообщение не твоё — играем звук
+    if (!isMine && document.hidden) {
+      notificationSound.play().catch(() => console.log("Нужен клик по странице для звука"));
+    }
   } else {
     unreadCounts[msg.room] = (unreadCounts[msg.room] || 0) + 1;
     updateUnreadUI(msg.room);
+    // Если пришло в другой чат и сообщение не твоё — играем звук
+    if (!isMine) {
+      notificationSound.play().catch(() => console.log("Нужен клик по странице для звука"));
+    }
   }
 });
 
