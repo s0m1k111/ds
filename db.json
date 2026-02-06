@@ -70,6 +70,29 @@
         "text": "sfsfd",
         "time": "19:29",
         "room": "general"
+      },
+      {
+        "id": 1770313526869,
+        "user": "igor",
+        "text": "фвыфв",
+        "time": "20:45",
+        "room": "general"
+      },
+      {
+        "id": 1770314772790,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg",
+        "text": "kshhdfhsbrfd",
+        "time": "21:06",
+        "room": "general"
+      },
+      {
+        "id": 1770314786589,
+        "user": "igor",
+        "avatar": "https://i.pinimg.com/736x/ca/bf/ac/cabfacbf3dd9e4b39929296e19ace0fc.jpg",
+        "text": "akhbd.kasjd",
+        "time": "21:06",
+        "room": "general"
       }
     ],
     "spam": [
@@ -169,6 +192,29 @@
         "user": "igor",
         "text": "dfgdg",
         "time": "20:32",
+        "room": "spam"
+      },
+      {
+        "id": 1770313530507,
+        "user": "igor",
+        "text": "фвыфвы",
+        "time": "20:45",
+        "room": "spam"
+      },
+      {
+        "id": 1770313887160,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg",
+        "text": "whberfueyhf",
+        "time": "20:51",
+        "room": "spam"
+      },
+      {
+        "id": 1770313888150,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg",
+        "text": "eibfrurhwefj",
+        "time": "20:51",
         "room": "spam"
       }
     ],
@@ -279,13 +325,39 @@
         "text": "dhghfdh",
         "time": "20:32",
         "room": "igor_pavel"
+      },
+      {
+        "id": 1770313518614,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg",
+        "text": "фывфвфвыф",
+        "time": "20:45",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1770338753323,
+        "user": "igor",
+        "avatar": "https://i.pinimg.com/736x/ca/bf/ac/cabfacbf3dd9e4b39929296e19ace0fc.jpg",
+        "text": "чё как",
+        "time": "03:45",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1770338760192,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg",
+        "text": "норм ты как",
+        "time": "03:46",
+        "room": "igor_pavel"
       }
     ]
   },
   "users": [
     {
       "username": "igor",
-      "password": "$2b$10$YAm9E83d6FhiIDD9dT4m..6StFw0p2x4HBr.KDtZGBdSgaWsu3CKm"
+      "password": "$2b$10$YAm9E83d6FhiIDD9dT4m..6StFw0p2x4HBr.KDtZGBdSgaWsu3CKm",
+      "email": "",
+      "avatar": "https://i.pinimg.com/736x/ca/bf/ac/cabfacbf3dd9e4b39929296e19ace0fc.jpg"
     },
     {
       "username": "pavel",

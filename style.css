@@ -341,3 +341,24 @@ input:focus {
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+.msg-avatar {
+  width: 35px !important;
+  height: 35px !important;
+  min-width: 35px; /* Чтобы flex-контейнер не сжимал их */
+  min-height: 35px;
+  border-radius: 50%;
+  object-fit: cover; /* Важно: обрезает фото, чтобы оно не растягивалось */
+  border: 1px solid var(--neon-blue);
+  flex-shrink: 0; /* Запрещает аватару уменьшаться */
+}
+
+/* Аватарки в списке пользователей (сайдбар) */
+.contact-avatar {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+  flex-shrink: 0;
+}

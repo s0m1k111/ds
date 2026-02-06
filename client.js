@@ -2,11 +2,16 @@ const socket = io();
 let currentUser = null;
 let currentRoom = "general";
 let allMessages = {};
-let typingTimeout;
 let unreadCounts = {};
 
 const getPrivateRoomId = (u1, u2) => [u1, u2].sort().join("_");
 const isImageUrl = (url) => /\.(jpg|jpeg|png|webp|gif)$/.test(url) || url.startsWith("https://images.unsplash.com");
+
+// Применяем сохраненные настройки сразу при загрузке скрипта
+const savedTheme = localStorage.getItem("theme") || "dark";
+document.documentElement.setAttribute("data-theme", savedTheme);
+const savedBg = localStorage.getItem("chat-bg");
+if (savedBg) document.documentElement.style.setProperty("--chat-bg-img", `url('${savedBg}')`);
 
 function transitionTo(hide, show) {
   const h = document.getElementById(hide),
@@ -25,18 +30,17 @@ function renderMessage(msg) {
   if (msg.room !== currentRoom) return;
   const container = document.getElementById("messages-container");
   const isMine = currentUser && msg.user === currentUser.username;
-  // Берем аватар из сообщения (сервер подставляет актуальный на момент отправки)
   const avatarSrc = msg.avatar || "https://cdn-icons-png.flaticon.com/128/149/149071.png";
 
-  const content = isImageUrl(msg.text)
-    ? `<img src="${msg.text}" class="chat-img" style="max-width:200px; border-radius:10px; cursor:pointer" onclick="window.open('${msg.text}')">`
+  let content = isImageUrl(msg.text)
+    ? `<img src="${msg.text}" class="chat-img" onclick="window.open('${msg.text}')" style="max-width:250px; border-radius:10px; cursor:pointer;">`
     : `<div class="msg-text">${msg.text}</div>`;
 
   const div = document.createElement("div");
   div.className = `message-wrapper ${isMine ? "mine" : ""}`;
   div.innerHTML = `
-        <img src="${avatarSrc}" class="msg-avatar" style="width:35px; height:35px; border-radius:50%; object-fit:cover; ${
-    isMine ? "order:2; margin-left:10px;" : "margin-right:10px;"
+        <img src="${avatarSrc}" class="msg-avatar" data-user="${msg.user}" style="${
+    isMine ? "order:2; margin-left:10px; margin-right:0;" : ""
   }">
         <div class="message-bubble">
             <div class="msg-author" style="font-size:0.7rem; font-weight:bold; color:var(--neon-blue)">${msg.user}</div>
@@ -48,7 +52,7 @@ function renderMessage(msg) {
   container.scrollTop = container.scrollHeight;
 }
 
-// 2. Обновление счетчиков в интерфейсе
+// 2. Обновление уведомлений (бейджей)
 function updateUnreadUI(room) {
   const targetId = room.includes("_") ? room.split("_").find((u) => u !== currentUser?.username) : room;
   const item = document.querySelector(`[data-id="${targetId}"]`);
@@ -74,7 +78,8 @@ window.switchRoom = (target) => {
   const isPrivate = !["general", "spam"].includes(target);
   const newRoom = isPrivate ? getPrivateRoomId(currentUser.username, target) : target;
 
-  // Серверу просто сообщаем, что мы в этой комнате (для логирования/статуса)
+  if (newRoom === currentRoom) return;
+
   socket.emit("join room", { oldRoom: currentRoom, newRoom: newRoom });
 
   currentRoom = newRoom;
@@ -82,7 +87,9 @@ window.switchRoom = (target) => {
   updateUnreadUI(currentRoom);
 
   document.querySelector(".chat-header").innerText = isPrivate ? `👤 ${target}` : `# ${target}`;
-  document.querySelectorAll(".contact-item").forEach((el) => el.classList.toggle("active", el.getAttribute("data-id") === target));
+  document.querySelectorAll(".contact-item").forEach((el) => {
+    el.classList.toggle("active", el.getAttribute("data-id") === target);
+  });
 
   const container = document.getElementById("messages-container");
   container.innerHTML = "";
@@ -91,10 +98,9 @@ window.switchRoom = (target) => {
   }
 };
 
-// 4. Глобальный прием сообщений
+// 4. Прием сообщений
 socket.on("render message", (msg) => {
   if (!allMessages[msg.room]) allMessages[msg.room] = [];
-
   if (!allMessages[msg.room].some((m) => m.id === msg.id)) {
     allMessages[msg.room].push(msg);
   }
@@ -107,7 +113,7 @@ socket.on("render message", (msg) => {
   }
 });
 
-// 5. Отправка
+// 5. Отправка сообщения
 function send() {
   const input = document.getElementById("msg-input");
   const text = input.value.trim();
@@ -118,51 +124,90 @@ function send() {
   }
 }
 
-// Обработчики кликов
-document.addEventListener("click", (e) => {
-  if (e.target && e.target.id === "send-btn") send();
+// 6. Индикатор печати
+let typingTimer;
+document.getElementById("msg-input")?.addEventListener("input", () => {
+  if (!currentUser) return;
+  socket.emit("typing", { user: currentUser.username, room: currentRoom, isTyping: true });
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(() => {
+    socket.emit("typing", { user: currentUser.username, room: currentRoom, isTyping: false });
+  }, 2000);
+});
 
-  if (e.target && e.target.id === "save-profile-btn") {
-    const email = document.getElementById("edit-email").value;
-    const avatar = document.getElementById("edit-avatar").value;
-    const bgUrl = document.getElementById("bg-input-modal").value;
-    if (bgUrl) document.documentElement.style.setProperty("--chat-bg-img", `url('${bgUrl}')`);
-    socket.emit("update profile", { username: currentUser.username, email, avatar });
+socket.on("user typing", (data) => {
+  const ind = document.getElementById("typing-indicator");
+  if (!ind) return;
+  if (data.isTyping && data.room === currentRoom) {
+    ind.innerText = `${data.user} печатает...`;
+  } else {
+    ind.innerText = "";
   }
+});
 
-  if (e.target && e.target.id === "logout-btn") location.reload();
+// 7. Настройки (Модальное окно)
+window.toggleProfileModal = () => {
+  const modal = document.getElementById("profile-modal");
+  modal.classList.toggle("hidden");
+  if (currentUser && !modal.classList.contains("hidden")) {
+    document.getElementById("edit-email").value = currentUser.email || "";
+    document.getElementById("edit-avatar").value = currentUser.avatar || "";
+    document.getElementById("bg-input-modal").value = localStorage.getItem("chat-bg") || "";
+  }
+};
 
-  if (e.target && e.target.id === "auth-btn") {
+window.setTheme = (t) => {
+  document.documentElement.setAttribute("data-theme", t);
+  localStorage.setItem("theme", t);
+};
+
+// 8. Обработчики кликов (Делегирование)
+document.addEventListener("click", (e) => {
+  // Авторизация
+  if (e.target.id === "auth-btn") {
     const u = document.getElementById("username").value,
       p = document.getElementById("password").value;
     const isLogin = document.getElementById("auth-title").innerText === "Вход в систему";
+    if (!u || !p) return alert("Заполни поля!");
     socket.emit(isLogin ? "login" : "register", { username: u, password: p });
   }
 
-  if (e.target && e.target.closest("#auth-toggle")) {
+  if (e.target.closest("#auth-toggle")) {
     const t = document.getElementById("auth-title"),
       b = document.getElementById("auth-btn");
     const isLogin = t.innerText === "Вход в систему";
     t.innerText = isLogin ? "Регистрация" : "Вход в систему";
     b.innerText = isLogin ? "Создать" : "Войти";
   }
-});
 
-document.addEventListener("keydown", (e) => {
-  if (e.target && e.target.id === "msg-input" && e.key === "Enter") send();
-});
+  // Сохранение настроек
+  if (e.target.id === "save-profile-btn") {
+    const email = document.getElementById("edit-email").value;
+    const avatar = document.getElementById("edit-avatar").value;
+    const bgUrl = document.getElementById("bg-input-modal").value;
 
-// Настройки
-window.toggleProfileModal = () => {
-  document.getElementById("profile-modal").classList.toggle("hidden");
-  if (currentUser) {
-    document.getElementById("edit-email").value = currentUser.email || "";
-    document.getElementById("edit-avatar").value = currentUser.avatar || "";
+    if (bgUrl !== null) {
+      document.documentElement.style.setProperty("--chat-bg-img", bgUrl ? `url('${bgUrl}')` : "none");
+      localStorage.setItem("chat-bg", bgUrl);
+    }
+    socket.emit("update profile", { username: currentUser.username, email, avatar });
   }
-};
-window.setTheme = (t) => document.documentElement.setAttribute("data-theme", t);
 
-// 6. События сокетов
+  // Выход
+  if (e.target.id === "logout-btn") {
+    if (confirm("Выйти из аккаунта?")) location.reload();
+  }
+
+  // Отправка по кнопке
+  if (e.target.id === "send-btn") send();
+});
+
+// Клавиша Enter
+document.addEventListener("keydown", (e) => {
+  if (e.target.id === "msg-input" && e.key === "Enter") send();
+});
+
+// 9. События сокетов (Авторизация и обновления)
 socket.on("auth success", (data) => {
   currentUser = data.user;
   allMessages = data.history || {};
@@ -172,12 +217,18 @@ socket.on("auth success", (data) => {
   const uList = document.getElementById("users-list");
   uList.innerHTML = "";
   data.allUsers.forEach((u) => {
-    if (u.username !== currentUser.username) {
+    const name = typeof u === "string" ? u : u.username;
+    const avatar = u.avatar || "https://cdn-icons-png.flaticon.com/128/149/149071.png";
+
+    if (name !== currentUser.username) {
       const div = document.createElement("div");
       div.className = "contact-item";
-      div.setAttribute("data-id", u.username);
-      div.innerHTML = `<span>👤 ${u.username}</span>`; // Обернули в span для верстки
-      div.onclick = () => window.switchRoom(u.username);
+      div.setAttribute("data-id", name);
+      div.innerHTML = `
+        <img src="${avatar}" class="contact-avatar" style="width:25px; height:25px; border-radius:50%; margin-right:10px; object-fit:cover;">
+        <span>${name}</span>
+      `;
+      div.onclick = () => window.switchRoom(name);
       uList.appendChild(div);
     }
   });
@@ -188,25 +239,22 @@ socket.on("auth success", (data) => {
 socket.on("profile saved", (user) => {
   currentUser = user;
   document.getElementById("my-avatar").src = user.avatar || "https://cdn-icons-png.flaticon.com/128/149/149071.png";
-  alert("Настройки сохранены!");
+  alert("Настройки применены!");
   toggleProfileModal();
 });
 
-// ВАЖНО: Обновление данных других пользователей (аватарки в списке)
 socket.on("user updated", (data) => {
-  const item = document.querySelector(`[data-id="${data.username}"]`);
-  if (item) {
-    item.innerHTML = `<span>👤 ${data.username}</span>`;
-    // Если нужно, тут можно добавить логику смены аватара прямо в списке
-  }
-});
+  // Обновляем аватарку в списке контактов
+  const contactImg = document.querySelector(`.contact-item[data-id="${data.username}"] img`);
+  if (contactImg) contactImg.src = data.avatar || "https://cdn-icons-png.flaticon.com/128/149/149071.png";
 
-socket.on("user typing", (data) => {
-  const indicator = document.getElementById("typing-indicator");
-  if (indicator) {
-    indicator.innerText = data.isTyping && data.room === currentRoom ? `${data.user} печатает...` : "";
-  }
+  // Обновляем аватарки в чате
+  document.querySelectorAll(`.msg-avatar[data-user="${data.username}"]`).forEach((img) => {
+    img.src = data.avatar || "https://cdn-icons-png.flaticon.com/128/149/149071.png";
+  });
 });
 
 socket.on("auth error", (m) => alert(m));
+
+// Старт лоадера
 setTimeout(() => transitionTo("loader", "auth-screen"), 3000);

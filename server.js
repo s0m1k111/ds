@@ -82,13 +82,15 @@ io.on("connection", (socket) => {
 
   // ОБНОВЛЕНИЕ ПРОФИЛЯ
   socket.on("update profile", async (data) => {
+    // Ищем пользователя по имени, которое прислал клиент (или сохраненному socketUsername)
     const user = db.data.users.find((u) => u.username === data.username);
     if (user) {
-      user.email = data.email || user.email;
-      user.avatar = data.avatar || user.avatar;
+      user.email = data.email || ""; // Теперь email может быть пустым
+      user.avatar = data.avatar || ""; // Аватар тоже
       await db.write();
 
       socket.emit("profile saved", user);
+      // Важно: рассылаем ВСЕМ новый аватар пользователя
       io.emit("user updated", { username: user.username, avatar: user.avatar });
     }
   });
