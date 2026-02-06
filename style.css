@@ -362,3 +362,27 @@ input:focus {
   margin-right: 10px;
   flex-shrink: 0;
 }
+
+/* Статус онлайн - точка */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #00ff88; /* Ярко-зеленый неон */
+  border-radius: 50%;
+  border: 2px solid var(--bg-dark);
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  box-shadow: 0 0 10px #00ff88;
+  display: none; /* По умолчанию скрыта */
+}
+
+/* Показываем точку только если у родителя есть класс .online */
+.contact-item.online .status-dot {
+  display: block;
+}
+
+/* Дополнительно: небольшое свечение ника онлайн-пользователя */
+.contact-item.online span {
+  text-shadow: 0 0 5px rgba(0, 255, 136, 0.3);
+}

@@ -3,6 +3,7 @@ let currentUser = null;
 let currentRoom = "general";
 let allMessages = {};
 let unreadCounts = {};
+let currentOnlineList = []; // Храним список тех, кто в сети
 
 const getPrivateRoomId = (u1, u2) => [u1, u2].sort().join("_");
 const isImageUrl = (url) => /\.(jpg|jpeg|png|webp|gif)$/.test(url) || url.startsWith("https://images.unsplash.com");
@@ -40,7 +41,7 @@ function renderMessage(msg) {
   div.className = `message-wrapper ${isMine ? "mine" : ""}`;
   div.innerHTML = `
         <img src="${avatarSrc}" class="msg-avatar" data-user="${msg.user}" style="${
-    isMine ? "order:2; margin-left:10px; margin-right:0;" : ""
+    isMine ? "order:2; margin-left:10px; margin-right:0;" : "margin-right:10px;"
   }">
         <div class="message-bubble">
             <div class="msg-author" style="font-size:0.7rem; font-weight:bold; color:var(--neon-blue)">${msg.user}</div>
@@ -152,13 +153,19 @@ window.toggleProfileModal = () => {
   if (currentUser && !modal.classList.contains("hidden")) {
     document.getElementById("edit-email").value = currentUser.email || "";
     document.getElementById("edit-avatar").value = currentUser.avatar || "";
-    document.getElementById("bg-input-modal").value = localStorage.getItem("chat-bg") || "";
   }
 };
 
 window.setTheme = (t) => {
   document.documentElement.setAttribute("data-theme", t);
   localStorage.setItem("theme", t);
+};
+
+// Функция изменения фона
+window.changeBackground = () => {
+  const bgUrl = document.getElementById("bg-input").value;
+  document.documentElement.style.setProperty("--chat-bg-img", bgUrl ? `url('${bgUrl}')` : "none");
+  localStorage.setItem("chat-bg", bgUrl);
 };
 
 // 8. Обработчики кликов (Делегирование)
@@ -180,16 +187,10 @@ document.addEventListener("click", (e) => {
     b.innerText = isLogin ? "Создать" : "Войти";
   }
 
-  // Сохранение настроек
+  // Сохранение настроек профиля
   if (e.target.id === "save-profile-btn") {
     const email = document.getElementById("edit-email").value;
     const avatar = document.getElementById("edit-avatar").value;
-    const bgUrl = document.getElementById("bg-input-modal").value;
-
-    if (bgUrl !== null) {
-      document.documentElement.style.setProperty("--chat-bg-img", bgUrl ? `url('${bgUrl}')` : "none");
-      localStorage.setItem("chat-bg", bgUrl);
-    }
     socket.emit("update profile", { username: currentUser.username, email, avatar });
   }
 
@@ -207,7 +208,20 @@ document.addEventListener("keydown", (e) => {
   if (e.target.id === "msg-input" && e.key === "Enter") send();
 });
 
-// 9. События сокетов (Авторизация и обновления)
+// 9. СОБЫТИЯ ОНЛАЙН СТАТУСА
+socket.on("update online list", (onlineNames) => {
+  currentOnlineList = onlineNames;
+  document.querySelectorAll(".contact-item").forEach((item) => {
+    const name = item.getAttribute("data-id");
+    if (onlineNames.includes(name)) {
+      item.classList.add("online");
+    } else {
+      item.classList.remove("online");
+    }
+  });
+});
+
+// 10. Авторизация и обновления
 socket.on("auth success", (data) => {
   currentUser = data.user;
   allMessages = data.history || {};
@@ -217,15 +231,22 @@ socket.on("auth success", (data) => {
   const uList = document.getElementById("users-list");
   uList.innerHTML = "";
   data.allUsers.forEach((u) => {
-    const name = typeof u === "string" ? u : u.username;
+    const name = u.username;
     const avatar = u.avatar || "https://cdn-icons-png.flaticon.com/128/149/149071.png";
 
     if (name !== currentUser.username) {
       const div = document.createElement("div");
       div.className = "contact-item";
       div.setAttribute("data-id", name);
+
+      // Проверяем онлайн статус сразу при загрузке списка
+      if (currentOnlineList.includes(name)) div.classList.add("online");
+
       div.innerHTML = `
-        <img src="${avatar}" class="contact-avatar" style="width:25px; height:25px; border-radius:50%; margin-right:10px; object-fit:cover;">
+        <div style="position: relative; margin-right: 10px; display: flex;">
+          <img src="${avatar}" class="contact-avatar" style="width:25px; height:25px; border-radius:50%; object-fit:cover;">
+          <div class="status-dot"></div>
+        </div>
         <span>${name}</span>
       `;
       div.onclick = () => window.switchRoom(name);

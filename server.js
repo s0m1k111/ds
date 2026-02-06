@@ -18,6 +18,9 @@ const SALT_ROUNDS = 10;
 
 app.use(express.static("."));
 
+// Список онлайн пользователей
+let onlineUsers = new Set();
+
 function getPrivateRoomId(u1, u2) {
   return [u1, u2].sort().join("_");
 }
@@ -25,7 +28,6 @@ function getPrivateRoomId(u1, u2) {
 io.on("connection", (socket) => {
   let socketUsername = null;
 
-  // Функция подписки на ВСЕ доступные чаты
   const subscribeToAllRooms = (username) => {
     socket.join("general");
     socket.join("spam");
@@ -34,6 +36,13 @@ io.on("connection", (socket) => {
         socket.join(getPrivateRoomId(username, u.username));
       }
     });
+  };
+
+  // Вспомогательная функция для выхода в онлайн
+  const setUserOnline = (username) => {
+    socketUsername = username;
+    onlineUsers.add(username);
+    io.emit("update online list", Array.from(onlineUsers));
   };
 
   // РЕГИСТРАЦИЯ
@@ -52,7 +61,7 @@ io.on("connection", (socket) => {
     db.data.users.push(newUser);
     await db.write();
 
-    socketUsername = newUser.username;
+    setUserOnline(newUser.username);
     subscribeToAllRooms(newUser.username);
 
     socket.emit("auth success", {
@@ -67,7 +76,7 @@ io.on("connection", (socket) => {
   socket.on("login", async (userData) => {
     const user = db.data.users.find((u) => u.username === userData.username);
     if (user && (await bcrypt.compare(userData.password, user.password))) {
-      socketUsername = user.username;
+      setUserOnline(user.username);
       subscribeToAllRooms(user.username);
 
       socket.emit("auth success", {
@@ -80,25 +89,28 @@ io.on("connection", (socket) => {
     }
   });
 
-  // ОБНОВЛЕНИЕ ПРОФИЛЯ
+  // ВЫХОД (ОТКЛЮЧЕНИЕ СОКЕТА)
+  socket.on("disconnect", () => {
+    if (socketUsername) {
+      onlineUsers.delete(socketUsername);
+      io.emit("update online list", Array.from(onlineUsers));
+    }
+  });
+
+  // Остальной код (update profile, new message, typing) остается прежним...
   socket.on("update profile", async (data) => {
-    // Ищем пользователя по имени, которое прислал клиент (или сохраненному socketUsername)
     const user = db.data.users.find((u) => u.username === data.username);
     if (user) {
-      user.email = data.email || ""; // Теперь email может быть пустым
-      user.avatar = data.avatar || ""; // Аватар тоже
+      user.email = data.email || "";
+      user.avatar = data.avatar || "";
       await db.write();
-
       socket.emit("profile saved", user);
-      // Важно: рассылаем ВСЕМ новый аватар пользователя
       io.emit("user updated", { username: user.username, avatar: user.avatar });
     }
   });
 
-  // СООБЩЕНИЯ
   socket.on("new message", async (msgData) => {
     const user = db.data.users.find((u) => u.username === msgData.user);
-
     const message = {
       id: Date.now(),
       user: msgData.user,
@@ -107,21 +119,14 @@ io.on("connection", (socket) => {
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       room: msgData.room,
     };
-
     if (!db.data.messages[message.room]) db.data.messages[message.room] = [];
     db.data.messages[message.room].push(message);
     await db.write();
-
-    // Транслируем всем в этой комнате
     io.to(message.room).emit("render message", message);
   });
 
-  // ИСПРАВЛЕННЫЙ JOIN ROOM: Теперь мы не выходим из старой комнаты!
   socket.on("join room", (rooms) => {
-    // Убрали socket.leave(rooms.oldRoom).
-    // Теперь сокет просто подтверждает вход в целевую комнату.
     socket.join(rooms.newRoom);
-    console.log(`Пользователь ${socketUsername} сфокусирован на: ${rooms.newRoom}`);
   });
 
   socket.on("typing", (data) => {

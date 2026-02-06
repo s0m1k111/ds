@@ -93,6 +93,14 @@
         "text": "akhbd.kasjd",
         "time": "21:06",
         "room": "general"
+      },
+      {
+        "id": 1770339596348,
+        "user": "igor",
+        "avatar": "https://i.pinimg.com/736x/ca/bf/ac/cabfacbf3dd9e4b39929296e19ace0fc.jpg",
+        "text": "sfdsdf",
+        "time": "03:59",
+        "room": "general"
       }
     ],
     "spam": [
@@ -215,6 +223,22 @@
         "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg",
         "text": "eibfrurhwefj",
         "time": "20:51",
+        "room": "spam"
+      },
+      {
+        "id": 1770339609531,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg",
+        "text": "sdfsfs",
+        "time": "04:00",
+        "room": "spam"
+      },
+      {
+        "id": 1770339615845,
+        "user": "igor",
+        "avatar": "https://i.pinimg.com/736x/ca/bf/ac/cabfacbf3dd9e4b39929296e19ace0fc.jpg",
+        "text": "sdfsfs",
+        "time": "04:00",
         "room": "spam"
       }
     ],
