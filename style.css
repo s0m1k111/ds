@@ -386,3 +386,15 @@ input:focus {
 .contact-item.online span {
   text-shadow: 0 0 5px rgba(0, 255, 136, 0.3);
 }
+
+.call-btn {
+  background: var(--neon-blue);
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  margin-left: 15px;
+  box-shadow: 0 0 10px var(--neon-blue);
+  color: white;
+}

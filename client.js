@@ -5,6 +5,12 @@ let allMessages = {};
 let unreadCounts = {};
 let currentOnlineList = []; // Храним список тех, кто в сети
 
+let localStream;
+let peerConnection;
+const rtcConfig = {
+  iceServers: [{ urls: "stun:stun.l.google.com:19302" }], // Бесплатный сервер Google для обхода NAT
+};
+
 // --- ДОБАВЛЕНО: ЗВУКОВЫЕ УВЕДОМЛЕНИЯ ---
 const notificationSound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
 notificationSound.volume = 0.5;
