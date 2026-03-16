@@ -328,6 +328,38 @@
         "text": "zvyk",
         "time": "04:09",
         "room": "spam"
+      },
+      {
+        "id": 1773679338462,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/25/08/ff/2508ffffa1fe72959f13885dcc8f7b3a.jpg",
+        "text": "wefw",
+        "time": "19:42",
+        "room": "spam"
+      },
+      {
+        "id": 1773679987302,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/25/08/ff/2508ffffa1fe72959f13885dcc8f7b3a.jpg",
+        "text": "sfsf",
+        "time": "19:53",
+        "room": "spam"
+      },
+      {
+        "id": 1773680030657,
+        "user": "igor",
+        "avatar": "https://i.pinimg.com/736x/ca/bf/ac/cabfacbf3dd9e4b39929296e19ace0fc.jpg",
+        "text": "sfsfs",
+        "time": "19:53",
+        "room": "spam"
+      },
+      {
+        "id": 1773680032490,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/25/08/ff/2508ffffa1fe72959f13885dcc8f7b3a.jpg",
+        "text": "sfsfsfssf",
+        "time": "19:53",
+        "room": "spam"
       }
     ],
     "igor_pavel": [
@@ -493,6 +525,78 @@
         "text": "sfsf",
         "time": "04:11",
         "room": "igor_pavel"
+      },
+      {
+        "id": 1773678148644,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/25/08/ff/2508ffffa1fe72959f13885dcc8f7b3a.jpg",
+        "text": "ad",
+        "time": "19:22",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1773679342785,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/25/08/ff/2508ffffa1fe72959f13885dcc8f7b3a.jpg",
+        "text": "wef",
+        "time": "19:42",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1773679473274,
+        "user": "igor",
+        "avatar": "https://i.pinimg.com/736x/ca/bf/ac/cabfacbf3dd9e4b39929296e19ace0fc.jpg",
+        "text": "sdfsf",
+        "time": "19:44",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1773679478716,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/25/08/ff/2508ffffa1fe72959f13885dcc8f7b3a.jpg",
+        "text": "sfdsfd",
+        "time": "19:44",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1773679481514,
+        "user": "igor",
+        "avatar": "https://i.pinimg.com/736x/ca/bf/ac/cabfacbf3dd9e4b39929296e19ace0fc.jpg",
+        "text": "2wefw3fe",
+        "time": "19:44",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1773679484679,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/25/08/ff/2508ffffa1fe72959f13885dcc8f7b3a.jpg",
+        "text": "fe3wf",
+        "time": "19:44",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1773679487988,
+        "user": "igor",
+        "avatar": "https://i.pinimg.com/736x/ca/bf/ac/cabfacbf3dd9e4b39929296e19ace0fc.jpg",
+        "text": "wfewfeswfw",
+        "time": "19:44",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1773679492124,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/25/08/ff/2508ffffa1fe72959f13885dcc8f7b3a.jpg",
+        "text": "sfsfsf",
+        "time": "19:44",
+        "room": "igor_pavel"
+      },
+      {
+        "id": 1773682123193,
+        "user": "pavel",
+        "avatar": "https://i.pinimg.com/736x/5d/f7/5a/5df75a6373826946d92229096a5b80d5.jpg",
+        "text": "adsads",
+        "time": "20:28",
+        "room": "igor_pavel"
       }
     ]
   },
@@ -501,13 +605,15 @@
       "username": "igor",
       "password": "$2b$10$YAm9E83d6FhiIDD9dT4m..6StFw0p2x4HBr.KDtZGBdSgaWsu3CKm",
       "email": "",
-      "avatar": "https://i.pinimg.com/736x/ca/bf/ac/cabfacbf3dd9e4b39929296e19ace0fc.jpg"
+      "avatar": "https://i.pinimg.com/736x/ca/bf/ac/cabfacbf3dd9e4b39929296e19ace0fc.jpg",
+      "bg": "https://i.pinimg.com/736x/b6/07/d8/b607d8108131291f89d3e3a4c2610e46.jpg"
     },
     {
       "username": "pavel",
       "password": "$2b$10$FOT0CFYKmRHucn2p/rQMD.VjE0TSaRmZvEsz7KRNq1zs5HZGsQaoK",
       "email": "spavel1207@gmail.com",
-      "avatar": "https://i.pinimg.com/736x/71/e5/1e/71e51e1c85a87f82c33164405c49fc15.jpg"
+      "avatar": "https://i.pinimg.com/736x/5d/f7/5a/5df75a6373826946d92229096a5b80d5.jpg",
+      "bg": "https://i.pinimg.com/736x/46/33/48/463348113aa4f79dd2459610587fdbd9.jpg"
     }
   ]
 }

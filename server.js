@@ -102,9 +102,12 @@ io.on("connection", (socket) => {
     const user = db.data.users.find((u) => u.username === data.username);
     if (user) {
       user.email = data.email || "";
-      user.avatar = data.avatar || "";
+      user.avatar = data.avatar || ""; // Сохраняем аватар
+      user.bg = data.bg || ""; // Сохраняем фон (ЭТОГО НЕ БЫЛО)
       await db.write();
+
       socket.emit("profile saved", user);
+      // Рассылаем всем обновленные данные (аватарку)
       io.emit("user updated", { username: user.username, avatar: user.avatar });
     }
   });
