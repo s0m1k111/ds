@@ -10,24 +10,20 @@ const io = new Server(server, {
   cors: { origin: "*" },
 });
 
-// База
 const defaultData = {
-  messages: { general: [], spam: [] }, // room -> messages[]
-  users: [], // { username, password, email, avatar, bg }
-  friends: {}, // username -> [friendUsernames]
-  friendRequests: {}, // username -> [fromUsernames]
+  messages: { general: [], spam: [] },
+  users: [],
+  friends: {}, // { username: [friendUsernames] }
+  friendRequests: {}, // { username: [fromUsernames] }
 };
-
 const db = await JSONFilePreset("db.json", defaultData);
 const SALT_ROUNDS = 10;
 
-// Статика
 app.use(express.static("."));
 
-// Онлайн
+// онлайн
 let onlineUsers = new Set();
-
-// Антиспам: username -> [timestamps]
+// антиспам: username -> массив таймстампов
 const messageHistory = new Map();
 
 function getPrivateRoomId(u1, u2) {
@@ -35,10 +31,14 @@ function getPrivateRoomId(u1, u2) {
 }
 
 function ensureUserStructures(username) {
-  if (!db.data.friends) db.data.friends = {};
-  if (!db.data.friendRequests) db.data.friendRequests = {};
   if (!db.data.friends[username]) db.data.friends[username] = [];
   if (!db.data.friendRequests[username]) db.data.friendRequests[username] = [];
+}
+
+function isFriends(u1, u2) {
+  ensureUserStructures(u1);
+  ensureUserStructures(u2);
+  return db.data.friends[u1].includes(u2) && db.data.friends[u2].includes(u1);
 }
 
 function checkSpam(username) {
@@ -50,15 +50,19 @@ function checkSpam(username) {
     messageHistory.set(username, []);
   }
   const arr = messageHistory.get(username);
+  // очищаем старые
   while (arr.length && now - arr[0] > windowMs) arr.shift();
   arr.push(now);
-  return arr.length > maxMessages;
+  if (arr.length > maxMessages) {
+    return true;
+  }
+  return false;
 }
 
 io.on("connection", (socket) => {
   let socketUsername = null;
 
-  const subscribeToRooms = (username) => {
+  const subscribeToAllRooms = (username) => {
     socket.join("general");
     socket.join("spam");
     db.data.users.forEach((u) => {
@@ -93,7 +97,7 @@ io.on("connection", (socket) => {
     await db.write();
 
     setUserOnline(newUser.username);
-    subscribeToRooms(newUser.username);
+    subscribeToAllRooms(newUser.username);
 
     socket.emit("auth success", {
       user: newUser,
@@ -102,7 +106,6 @@ io.on("connection", (socket) => {
       friends: db.data.friends[newUser.username] || [],
       friendRequests: db.data.friendRequests[newUser.username] || [],
     });
-
     socket.broadcast.emit("user updated", { username: newUser.username, avatar: newUser.avatar });
   });
 
@@ -112,7 +115,7 @@ io.on("connection", (socket) => {
     if (user && (await bcrypt.compare(userData.password, user.password))) {
       ensureUserStructures(user.username);
       setUserOnline(user.username);
-      subscribeToRooms(user.username);
+      subscribeToAllRooms(user.username);
 
       socket.emit("auth success", {
         user: user,
@@ -126,7 +129,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // ОТКЛЮЧЕНИЕ
+  // ВЫХОД
   socket.on("disconnect", () => {
     if (socketUsername) {
       onlineUsers.delete(socketUsername);
@@ -148,7 +151,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // НОВОЕ СООБЩЕНИЕ (текст / картинка / голос)
+  // НОВОЕ СООБЩЕНИЕ
   socket.on("new message", async (msgData) => {
     if (!msgData || !msgData.user || !msgData.text || !msgData.room) return;
 
@@ -159,13 +162,21 @@ io.on("connection", (socket) => {
     }
 
     const user = db.data.users.find((u) => u.username === msgData.user);
+    const allowedRooms = new Set(["general", "spam"]);
+    // приватные комнаты только между друзьями
+    if (!allowedRooms.has(msgData.room)) {
+      const [u1, u2] = msgData.room.split("_");
+      if (!isFriends(u1, u2)) {
+        return; // не друзья — не даём писать
+      }
+    }
 
     const message = {
       id: Date.now(),
       user: msgData.user,
       avatar: user ? user.avatar : "",
       text: msgData.text,
-      type: msgData.type || "text", // text | image | audio
+      type: msgData.type || "text", // text | image
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       room: msgData.room,
     };
@@ -173,7 +184,6 @@ io.on("connection", (socket) => {
     if (!db.data.messages[message.room]) db.data.messages[message.room] = [];
     db.data.messages[message.room].push(message);
     await db.write();
-
     io.to(message.room).emit("render message", message);
   });
 
@@ -184,7 +194,7 @@ io.on("connection", (socket) => {
     if (!msgs) return;
     const msg = msgs.find((m) => m.id === id);
     if (!msg) return;
-    if (msg.user !== socketUsername) return;
+    if (msg.user !== socketUsername) return; // только свои
 
     msg.text = newText;
     msg.edited = true;
@@ -206,7 +216,7 @@ io.on("connection", (socket) => {
     io.to(room).emit("message deleted", { id, room });
   });
 
-  // ПЕРЕКЛЮЧЕНИЕ КОМНАТ
+  // ПРИСОЕДИНЕНИЕ К КОМНАТЕ
   socket.on("join room", (rooms) => {
     if (rooms?.newRoom) {
       socket.join(rooms.newRoom);
@@ -248,12 +258,8 @@ io.on("connection", (socket) => {
     db.data.friendRequests[socketUsername] = db.data.friendRequests[socketUsername].filter((u) => u !== from);
 
     if (accept) {
-      if (!db.data.friends[socketUsername].includes(from)) {
-        db.data.friends[socketUsername].push(from);
-      }
-      if (!db.data.friends[from].includes(socketUsername)) {
-        db.data.friends[from].push(socketUsername);
-      }
+      if (!db.data.friends[socketUsername].includes(from)) db.data.friends[socketUsername].push(from);
+      if (!db.data.friends[from].includes(socketUsername)) db.data.friends[from].push(socketUsername);
     }
     await db.write();
 
